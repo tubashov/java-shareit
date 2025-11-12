@@ -1,6 +1,7 @@
 package ru.practicum.shareit.exception;
 
 import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -20,15 +22,17 @@ public class GlobalExceptionHandler {
         ex.getBindingResult().getFieldErrors().forEach(error ->
                 errors.put(error.getField(), error.getDefaultMessage())
         );
+        log.warn("Validation error: {}", errors);
         return errors;
     }
 
-    // Нарушение ограничений валидации
+    // Ошибка валидации параметров
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleConstraintViolationException(ConstraintViolationException ex) {
         Map<String, String> error = new HashMap<>();
         error.put("error", ex.getMessage());
+        log.warn("Parameter validation error: {}", error);
         return error;
     }
 
@@ -36,6 +40,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MissingRequestHeaderException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleMissingHeader(MissingRequestHeaderException ex) {
+        log.warn("Missing required header: {}", ex.getHeaderName());
         return Map.of("error", "Missing required header: " + ex.getHeaderName());
     }
 
@@ -43,6 +48,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EmailAlreadyExistsException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public Map<String, String> handleEmailExists(EmailAlreadyExistsException ex) {
+        log.warn("Email conflict: {}", ex.getMessage());
         return Map.of("error", ex.getMessage());
     }
 
@@ -50,6 +56,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NullPointerException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public Map<String, String> handleNPE(NullPointerException ex) {
+        log.error("NullPointerException encountered", ex);
         return Map.of("error", "Internal server error: null value encountered");
     }
 
@@ -57,24 +64,17 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public Map<String, String> handleRuntimeException(RuntimeException ex) {
+        log.error("Runtime exception: {}", ex.getMessage(), ex);
         Map<String, String> error = new HashMap<>();
         error.put("error", ex.getMessage());
         return error;
     }
 
-    // Пользователь не найден — 404
-    @ExceptionHandler(UserNotFoundException.class)
+    // Базовое исключение 404 + частные случаи
+    @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Map<String, String> handleUserNotFound(UserNotFoundException ex) {
-        Map<String, String> error = new HashMap<>();
-        error.put("error", ex.getMessage());
-        return error;
-    }
-
-    // Вещь не найдена — 404
-    @ExceptionHandler(ItemNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Map<String, String> handleItemNotFound(ItemNotFoundException ex) {
+    public Map<String, String> handleNotFound(NotFoundException ex) {
+        log.warn("Resource not found: {}", ex.getMessage());
         return Map.of("error", ex.getMessage());
     }
 }

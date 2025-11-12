@@ -4,8 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exception.ItemNotFoundException;
-import ru.practicum.shareit.exception.UserNotFoundException;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.user.User;
@@ -29,8 +28,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto createItem(ItemDto itemDto, Long userId) {
         User owner = Optional.ofNullable(userService.getById(userId))
-                .orElseThrow(() -> new UserNotFoundException(
-                        "User with id " + userId + " not found"));
+                .orElseThrow(() -> NotFoundException.of("User", userId));
 
         Item item = ItemMapper.toItem(itemDto, owner);
         item.setAvailable(Optional.ofNullable(itemDto.getAvailable()).orElse(true));
@@ -43,17 +41,21 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Item update(Long itemId, ItemDto updates, User owner) {
-        Long ownerId = Optional.ofNullable(owner)
-                .map(User::getId)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        if (updates == null) {
+            throw new IllegalArgumentException("Update data cannot be null");
+        }
+
+        Long userId = owner != null ? owner.getId() : null;
+
+        Long ownerId = Optional.ofNullable(userId)
+                .orElseThrow(() -> NotFoundException.of("User", userId));
 
         Item existing = Optional.ofNullable(items.get(itemId))
-                .orElseThrow(() -> new ItemNotFoundException("Item with id " + itemId + " not found"));
+                .orElseThrow(() -> NotFoundException.of("Item", itemId));
 
-        Optional.ofNullable(existing.getOwner())
-                .map(User::getId)
-                .filter(id -> Objects.equals(id, ownerId))
-                .orElseThrow(() -> new IllegalStateException("Only owner can edit this item"));
+        if (existing.getOwner() == null || !Objects.equals(existing.getOwner().getId(), ownerId)) {
+            throw new IllegalStateException("Only owner can edit this item");
+        }
 
         Optional.ofNullable(updates.getName()).ifPresent(existing::setName);
         Optional.ofNullable(updates.getDescription()).ifPresent(existing::setDescription);
@@ -66,7 +68,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public Item getById(Long itemId) {
         return Optional.ofNullable(items.get(itemId))
-                .orElseThrow(() -> new ItemNotFoundException("Item with id " + itemId + " not found"));
+                .orElseThrow(() -> new NotFoundException("Item with id " + itemId + " not found"));
     }
 
     @Override
