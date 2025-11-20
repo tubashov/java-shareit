@@ -2,8 +2,11 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import ru.practicum.shareit.booking.dto.BookingShortDto;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.user.User;
+
+import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ItemMapper {
@@ -22,6 +25,28 @@ public class ItemMapper {
                 .requestId(item.getRequestId())
                 .build();
     }
+
+    public static ItemDto toItemDto(Item item,
+                                    BookingShortDto last,
+                                    BookingShortDto next,
+                                    List<CommentDto> comments) {
+        if (item == null) {
+            return null;
+        }
+
+        return ItemDto.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .description(item.getDescription())
+                .available(item.getAvailable())
+                .ownerId(item.getOwner() != null ? item.getOwner().getId() : null)
+                .requestId(item.getRequestId())
+                .lastBooking(last)
+                .nextBooking(next)
+                .comments(comments != null ? comments : List.of())
+                .build();
+    }
+
 
     public static Item toItem(ItemDto dto, User owner) {
         if (dto == null) {

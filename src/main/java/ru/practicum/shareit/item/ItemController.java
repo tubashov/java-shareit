@@ -3,13 +3,12 @@ package ru.practicum.shareit.item;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
-import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserService;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/items")
@@ -32,27 +31,31 @@ public class ItemController {
             @RequestHeader(value = USER_HEADER) Long userId,
             @PathVariable Long itemId,
             @RequestBody ItemDto itemDto) {
-
-        User owner = userService.getById(userId);
-        return ItemMapper.toItemDto(itemService.update(itemId, itemDto, owner));
+        return ItemMapper.toItemDto(itemService.update(itemId, itemDto, userId));
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getItemById(@PathVariable Long itemId) {
-        return ItemMapper.toItemDto(itemService.getById(itemId));
+    public ItemDto getItemById(@RequestHeader(value = USER_HEADER) Long userId, @PathVariable Long itemId) {
+        return itemService.getById(itemId, userId);
     }
+
 
     @GetMapping
     public List<ItemDto> getUserItems(@RequestHeader(value = USER_HEADER) Long userId) {
-        return itemService.getAllByOwner(userId).stream()
-                .map(ItemMapper::toItemDto)
-                .collect(Collectors.toList());
+        return itemService.getAllByOwner(userId);
     }
 
     @GetMapping("/search")
     public List<ItemDto> searchItems(@RequestParam String text) {
-        return itemService.search(text).stream()
-                .map(ItemMapper::toItemDto)
-                .collect(Collectors.toList());
+        return itemService.search(text);
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDto addComment(
+            @RequestHeader("X-Sharer-User-Id") Long userId,
+            @PathVariable Long itemId,
+            @RequestBody CommentDto dto
+    ) {
+        return itemService.addComment(userId, itemId, dto);
     }
 }
