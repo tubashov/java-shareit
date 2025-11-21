@@ -44,7 +44,6 @@ public class ItemController {
         return itemService.getById(itemId, userId);
     }
 
-
     @GetMapping
     public List<ItemDto> getUserItems(@RequestHeader(value = USER_HEADER) @Positive Long userId) {
         return itemService.getAllByOwner(userId);
