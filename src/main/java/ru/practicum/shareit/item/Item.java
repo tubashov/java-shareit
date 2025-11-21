@@ -4,16 +4,20 @@ import jakarta.persistence.*;
 import lombok.*;
 import ru.practicum.shareit.user.User;
 
-@Data
-@Entity
-@Table(name = "items")
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString(exclude = "owner")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Entity
+@Table(name = "items")
 public class Item {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @Column(nullable = false, length = 255)
