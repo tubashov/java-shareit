@@ -57,6 +57,12 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- Spring Data JPA (обязательно!!) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
         <!-- Database -->
         <dependency>
             <groupId>org.postgresql</groupId>
@@ -74,7 +80,8 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <optional>true</optional>
+            <version>1.18.30</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Validation -->
@@ -105,6 +112,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>3.3.2</version>
                 <configuration>
                     <excludes>
                         <exclude>
@@ -119,7 +127,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>3.3.1</version>
                 <configuration>
                     <configLocation>checkstyle.xml</configLocation>
                     <failOnViolation>true</failOnViolation>

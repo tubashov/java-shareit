@@ -6,10 +6,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.EmailAlreadyExistsException;
 import ru.practicum.shareit.exception.NotFoundException;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -17,81 +16,66 @@ public class UserServiceImpl implements UserService {
 
     private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
 
-    private final Map<Long, User> users = new ConcurrentHashMap<>();
-    private long nextId = 1L;
+    private final UserRepository userRepository;
 
     @Override
+    @Transactional
     public User create(User user) {
         if (user == null) {
             throw new IllegalArgumentException("User cannot be null");
         }
 
-        boolean emailExists = users.values().stream()
-                .anyMatch(u -> u.getEmail().equalsIgnoreCase(user.getEmail()));
-
-        if (emailExists) {
+        if (userRepository.existsByEmailIgnoreCase(user.getEmail())) {
             throw new EmailAlreadyExistsException("User with that email already exists");
         }
 
-        user.setId(nextId++);
-        users.put(user.getId(), user);
-
-        log.info("Created user: {}", user);
-        return user;
+        User saved = userRepository.save(user);
+        log.info("Created user: {}", saved);
+        return saved;
     }
 
     @Override
+    @Transactional
     public User update(Long id, User updates) {
-        if (id == null || updates == null) {
-            throw new IllegalArgumentException("Id and update data must not be null");
-        }
-
-        User existing = Optional.ofNullable(users.get(id))
+        User existing = userRepository.findById(id)
                 .orElseThrow(() -> NotFoundException.of("User", id));
 
-        // Проверка уникальности email, если он меняется
-        Optional.ofNullable(updates.getEmail())
-                .filter(email -> !email.equalsIgnoreCase(existing.getEmail()))
-                .ifPresent(newEmail -> {
-                    boolean emailExists = users.values().stream()
-                            .anyMatch(u -> u.getEmail().equalsIgnoreCase(newEmail));
-                    if (emailExists) {
-                        throw new EmailAlreadyExistsException("User with that email already exists");
-                    }
-                    existing.setEmail(newEmail);
-                });
+        if (updates.getEmail() != null && !updates.getEmail().equalsIgnoreCase(existing.getEmail())) {
+            if (userRepository.existsByEmailIgnoreCase(updates.getEmail())) {
+                throw new EmailAlreadyExistsException("User with that email already exists");
+            }
+            existing.setEmail(updates.getEmail());
+        }
 
-        // Обновление имени
-        Optional.ofNullable(updates.getName())
-                .filter(name -> !name.isBlank())
-                .ifPresent(existing::setName);
+        if (updates.getName() != null && !updates.getName().isBlank()) {
+            existing.setName(updates.getName());
+        }
 
-        log.info("Updated user {}: {}", id, existing);
-        return existing;
+        User saved = userRepository.save(existing);
+        log.info("Updated user {}: {}", id, saved);
+        return saved;
     }
 
     @Override
+    @Transactional(readOnly = true)
     public User getById(Long id) {
-        return Optional.ofNullable(users.get(id))
+        return userRepository.findById(id)
                 .orElseThrow(() -> NotFoundException.of("User", id));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<User> getAll() {
-        return users.values().stream().collect(Collectors.toList());
+        return userRepository.findAll();
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException("User ID must not be null");
-        }
-
-        User removed = users.remove(id);
-        if (removed == null) {
+        if (!userRepository.existsById(id)) {
             throw NotFoundException.of("User", id);
         }
-
+        userRepository.deleteById(id);
         log.info("Deleted user with id {}", id);
     }
 }
