@@ -168,14 +168,17 @@ public class BookingServiceImpl implements BookingService {
     private List<BookingResponseDto> filterAndMap(List<Booking> bookings, BookingState state) {
         LocalDateTime now = LocalDateTime.now();
         return bookings.stream()
-                .filter(b -> switch (state) {
-                    case ALL -> true;
-                    case CURRENT -> !b.getStart().isAfter(now) && !b.getEnd().isBefore(now);
-                    case PAST -> b.getEnd().isBefore(now);
-                    case FUTURE -> b.getStart().isAfter(now);
-                    case WAITING -> b.getStatus() == BookingStatus.WAITING;
-                    case REJECTED -> b.getStatus() == BookingStatus.REJECTED;
-                    case APPROVED -> b.getStatus() == BookingStatus.APPROVED;
+                .filter(b -> {
+                    switch (state) {
+                        case ALL: return true;
+                        case CURRENT: return !b.getStart().isAfter(now) && !b.getEnd().isBefore(now);
+                        case PAST: return b.getEnd().isBefore(now);
+                        case FUTURE: return b.getStart().isAfter(now);
+                        case WAITING: return b.getStatus() == BookingStatus.WAITING;
+                        case REJECTED: return b.getStatus() == BookingStatus.REJECTED;
+                        case APPROVED: return b.getStatus() == BookingStatus.APPROVED;
+                        default: return false;
+                    }
                 })
                 .sorted(Comparator.comparing(Booking::getStart).reversed())
                 .map(BookingMapper::toResponseDto)
