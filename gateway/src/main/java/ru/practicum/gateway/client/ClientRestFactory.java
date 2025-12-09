@@ -8,7 +8,8 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 
 public final class ClientRestFactory {
 
-    private ClientRestFactory() { /* утилитный класс */ }
+    private ClientRestFactory() { /* утилитный класс */
+    }
 
     public static RestTemplate build(String baseUrl, RestTemplateBuilder builder) {
         ClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
