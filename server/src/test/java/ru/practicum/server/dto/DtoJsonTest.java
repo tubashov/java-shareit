@@ -103,7 +103,7 @@ public class DtoJsonTest {
 
     @Test
     void testBookingDtoSerialization() throws Exception {
-        BookingDto booking = BookingDto .builder()
+        BookingDto booking = BookingDto.builder()
                 .id(1L)
                 .itemId(1L)
                 .bookerId(2L)

@@ -16,14 +16,11 @@ import ru.practicum.server.request.ItemRequest;
 import ru.practicum.server.request.ItemRequestRepository;
 
 import jakarta.validation.ValidationException;
-import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.mockito.ArgumentMatchers.*;
 
 class ItemServiceImplTest {
 

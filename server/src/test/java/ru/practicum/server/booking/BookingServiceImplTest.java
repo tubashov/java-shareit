@@ -128,10 +128,16 @@ class BookingServiceImplTest {
     void getBooking_notOwnerOrBooker_throws() {
         Booking booking = new Booking();
         booking.setId(1L);
+
         User otherUser = new User();
         otherUser.setId(2L);
-        booking.setItem(new Item() {{ setOwner(otherUser); }});
-        booking.setBooker(new User() {{ setId(3L); }});
+        Item item = new Item();
+        item.setOwner(otherUser);
+        booking.setItem(item);
+
+        User booker = new User();
+        booker.setId(3L);
+        booking.setBooker(booker);
 
         when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
 
