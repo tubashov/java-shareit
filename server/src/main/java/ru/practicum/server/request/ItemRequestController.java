@@ -1,6 +1,5 @@
 package ru.practicum.server.request;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.common.dto.item.ItemRequestDto;
@@ -18,7 +17,7 @@ public class ItemRequestController {
     @PostMapping
     public ItemRequestDto create(
             @RequestHeader(USER_HEADER) Long userId,
-            @RequestBody @Valid ItemRequestDto dto
+            @RequestBody ItemRequestDto dto
     ) {
         return service.create(userId, dto);
     }

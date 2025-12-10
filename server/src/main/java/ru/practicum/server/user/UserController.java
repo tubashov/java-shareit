@@ -1,10 +1,8 @@
 package ru.practicum.server.user;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.common.dto.user.UserDto;
 
@@ -15,13 +13,12 @@ import java.util.stream.Collectors;
 @RequestMapping("/users")
 @RequiredArgsConstructor
 @Slf4j
-@Validated
 public class UserController {
 
     private final UserService userService;
 
     @PostMapping(produces = "application/json")
-    public UserDto createUser(@Valid @RequestBody UserDto userDto) {
+    public UserDto createUser(@RequestBody UserDto userDto) {
         var createdUser = userService.create(UserMapper.toUser(userDto));
         var createdUserDto = UserMapper.toUserDto(createdUser);
         log.info("Create user: {}", createdUserDto);
@@ -38,14 +35,14 @@ public class UserController {
     }
 
     @GetMapping(value = "/{userId}", produces = "application/json")
-    public UserDto getUserById(@PathVariable @Positive Long userId) {
+    public UserDto getUserById(@PathVariable Long userId) {
         var userDto = UserMapper.toUserDto(userService.getById(userId));
         log.info("GET /users/{} - user request by id", userId);
         return userDto;
     }
 
     @PatchMapping(value = "/{userId}", produces = "application/json")
-    public UserDto updateUser(@PathVariable @Positive Long userId, @RequestBody UserDto userDto) {
+    public UserDto updateUser(@PathVariable Long userId, @RequestBody UserDto userDto) {
         var updatedUser = userService.update(userId, UserMapper.toUser(userDto));
         var updatedUserDto = UserMapper.toUserDto(updatedUser);
         log.info("PATCH /users/{} - update user: {}", userId, updatedUserDto);

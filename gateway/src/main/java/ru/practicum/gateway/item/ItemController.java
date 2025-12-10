@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.common.dto.item.ItemDto;
 import ru.practicum.common.dto.item.CommentDto;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
@@ -64,6 +66,9 @@ public class ItemController {
 
     @GetMapping("/search")
     public ResponseEntity<Object> searchItems(@RequestParam String text) {
+        if (text == null || text.isBlank()) {
+            return ResponseEntity.ok(List.of());
+        }
         log.info("Gateway: searchItems with text={}", text);
         return itemClient.searchItems(text);
     }
