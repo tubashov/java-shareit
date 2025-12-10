@@ -1,5 +1,6 @@
 package ru.practicum.common.dto.item;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 public class CommentDto {
     private Long id;
 
+    @NotBlank(message = "Comment text cannot be blank")
     private String text;
 
     private String authorName;

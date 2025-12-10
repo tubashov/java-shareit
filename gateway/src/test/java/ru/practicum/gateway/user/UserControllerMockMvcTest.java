@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.common.dto.user.UserDto;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -61,7 +62,14 @@ class UserControllerMockMvcTest {
     void getUser_invalidId_returnsBadRequest() throws Exception {
         mockMvc.perform(get("/users/0"))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string("Id must be positive"));
+                .andExpect(jsonPath("$.error").exists())
+                .andExpect(jsonPath("$.error").value(containsString("positive")));
+    }
+
+    @Test
+    void getUser_nullId_returnsBadRequest() throws Exception {
+        mockMvc.perform(get("/users/"))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -90,7 +98,8 @@ class UserControllerMockMvcTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(userDto)))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string("Id must be positive"));
+                .andExpect(jsonPath("$.error").exists())
+                .andExpect(jsonPath("$.error").value(containsString("positive")));
     }
 
     @Test
@@ -106,6 +115,7 @@ class UserControllerMockMvcTest {
     void deleteUser_invalidId_returnsBadRequest() throws Exception {
         mockMvc.perform(delete("/users/0"))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string("Id must be positive"));
+                .andExpect(jsonPath("$.error").exists())
+                .andExpect(jsonPath("$.error").value(containsString("positive")));
     }
 }

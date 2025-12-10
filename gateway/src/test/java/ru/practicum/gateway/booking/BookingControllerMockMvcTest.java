@@ -105,7 +105,8 @@ class BookingControllerMockMvcTest {
     void getBookings_whenInvalidUserId_returnsBadRequest() throws Exception {
         mockMvc.perform(get("/bookings")
                         .header("X-Sharer-User-Id", 0))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").exists());
     }
 
     @Test

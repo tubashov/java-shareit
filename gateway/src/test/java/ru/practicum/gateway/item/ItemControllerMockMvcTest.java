@@ -66,7 +66,8 @@ class ItemControllerMockMvcTest {
                         .header("X-Sharer-User-Id", 1L)
                         .content(objectMapper.writeValueAsString(itemDto))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").exists());
     }
 
     @Test

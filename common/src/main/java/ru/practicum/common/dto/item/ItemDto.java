@@ -1,5 +1,6 @@
 package ru.practicum.common.dto.item;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,6 +23,7 @@ public class ItemDto {
     @NotBlank(message = "Description cannot be blank")
     private String description;
 
+    @NotNull(message = "Available status cannot be null")
     private Boolean available;
 
     private Long ownerId;
