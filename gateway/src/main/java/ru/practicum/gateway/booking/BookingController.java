@@ -24,23 +24,13 @@ public class BookingController {
 
     @GetMapping
     public ResponseEntity<Object> getBookings(
-            @RequestHeader("X-Sharer-User-Id") long userId,
+            @RequestHeader("X-Sharer-User-Id") @Positive long userId,
             @RequestParam(name = "state", defaultValue = "all") String stateParam,
-            @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
-            @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
+            @RequestParam(name = "from", defaultValue = "0") @PositiveOrZero Integer from,
+            @RequestParam(name = "size", defaultValue = "10") @Positive Integer size) {
 
         log.info("Get booking request with state={}, userId={}, from={}, size={}", stateParam, userId, from, size);
 
-        // Проверка userId
-        if (userId <= 0) {
-            log.warn("Invalid userId: {}", userId);
-            return ResponseEntity.badRequest().body(Map.of(
-                    "error", "X-Sharer-User-Id must be positive",
-                    "status", 400
-            ));
-        }
-
-        // Преобразуем stateParam в BookingState
         BookingState state;
         try {
             state = BookingState.from(stateParam)
@@ -69,7 +59,7 @@ public class BookingController {
 
     @PostMapping
     public ResponseEntity<Object> bookItem(
-            @RequestHeader("X-Sharer-User-Id") long userId,
+            @RequestHeader("X-Sharer-User-Id") @Positive long userId,
             @RequestBody @Valid BookItemRequestDto requestDto) {
         log.info("Creating booking {}, userId={}", requestDto, userId);
         return bookingClient.bookItem(userId, requestDto);
@@ -77,16 +67,16 @@ public class BookingController {
 
     @GetMapping("/{bookingId}")
     public ResponseEntity<Object> getBooking(
-            @RequestHeader("X-Sharer-User-Id") long userId,
-            @PathVariable Long bookingId) {
+            @RequestHeader("X-Sharer-User-Id") @Positive long userId,
+            @PathVariable @Positive Long bookingId) {
         log.info("Get booking {}, userId={}", bookingId, userId);
         return bookingClient.getBooking(userId, bookingId);
     }
 
     @PatchMapping("/{bookingId}")
     public ResponseEntity<Object> approveBooking(
-            @RequestHeader("X-Sharer-User-Id") long userId,
-            @PathVariable Long bookingId,
+            @RequestHeader("X-Sharer-User-Id") @Positive long userId,
+            @PathVariable @Positive Long bookingId,
             @RequestParam boolean approved) {
         log.info("Approve booking {}, userId={}, approved={}", bookingId, userId, approved);
         return bookingClient.approveBooking(userId, bookingId, approved);
@@ -94,16 +84,12 @@ public class BookingController {
 
     @GetMapping("/owner")
     public ResponseEntity<Object> getBookingsForOwner(
-            @RequestHeader("X-Sharer-User-Id") long userId,
+            @RequestHeader("X-Sharer-User-Id") @Positive long userId,
             @RequestParam(name = "state", defaultValue = "all") String stateParam,
-            @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
-            @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
+            @RequestParam(name = "from", defaultValue = "0") @PositiveOrZero Integer from,
+            @RequestParam(name = "size", defaultValue = "10") @Positive Integer size) {
 
         log.info("Get bookings for owner, state={}, userId={}, from={}, size={}", stateParam, userId, from, size);
-
-        if (userId <= 0) {
-            return ResponseEntity.badRequest().body(Map.of("error", "X-Sharer-User-Id must be positive"));
-        }
 
         BookingState state;
         try {

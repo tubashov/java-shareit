@@ -1,9 +1,11 @@
 package ru.practicum.gateway.user;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.common.dto.user.UserDto;
 
@@ -11,21 +13,19 @@ import ru.practicum.common.dto.user.UserDto;
 @RequestMapping("/users")
 @RequiredArgsConstructor
 @Slf4j
+@Validated
 public class UserController {
 
     private final UserClient userClient;
 
     @PostMapping
-    public ResponseEntity<Object> createUser(@Valid @RequestBody UserDto userDto) {
+    public ResponseEntity<Object> createUser(@RequestBody @Valid UserDto userDto) {
         log.info("Gateway: createUser request {}", userDto);
         return userClient.createUser(userDto);
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<Object> getUser(@PathVariable Long userId) {
-        ResponseEntity<Object> error = validateId(userId);
-        if (error != null) return error;
-
+    public ResponseEntity<Object> getUser(@PathVariable @Positive Long userId) {
         log.info("Gateway: getUser request id={}", userId);
         return userClient.getUser(userId);
     }
@@ -37,28 +37,15 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
-    public ResponseEntity<Object> updateUser(@PathVariable Long userId,
-                                             @RequestBody UserDto userDto) {
-        ResponseEntity<Object> error = validateId(userId);
-        if (error != null) return error;
-
+    public ResponseEntity<Object> updateUser(@PathVariable @Positive Long userId,
+                                             @RequestBody @Valid UserDto userDto) {
         log.info("Gateway: updateUser request id={}, dto={}", userId, userDto);
         return userClient.updateUser(userId, userDto);
     }
 
     @DeleteMapping("/{userId}")
-    public ResponseEntity<Object> deleteUser(@PathVariable Long userId) {
-        ResponseEntity<Object> error = validateId(userId);
-        if (error != null) return error;
-
+    public ResponseEntity<Object> deleteUser(@PathVariable @Positive Long userId) {
         log.info("Gateway: deleteUser request id={}", userId);
         return userClient.deleteUser(userId);
-    }
-
-    private ResponseEntity<Object> validateId(Long id) {
-        if (id == null || id <= 0) {
-            return ResponseEntity.badRequest().body("Id must be positive");
-        }
-        return null; // id валиден
     }
 }
