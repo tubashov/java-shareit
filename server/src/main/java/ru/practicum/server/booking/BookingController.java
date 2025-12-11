@@ -8,11 +8,6 @@ import ru.practicum.common.dto.booking.BookingResponseDto;
 
 import java.util.List;
 
-/**
- * Контроллер Booking в модуле server.
- * Контроллер прост: он принимает HTTP-запросы, вызывает сервис и возвращает DTO.
- * Бизнес-валидация (даты, права, проверки пересечений и т.п.) выполняется в BookingService.
- */
 @RestController
 @RequestMapping("/bookings")
 @RequiredArgsConstructor
