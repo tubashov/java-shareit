@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.common.dto.user.UserDto;
+import ru.practicum.common.dto.user.UserUpdateDto;
 
 @RestController
 @RequestMapping("/users")
@@ -38,9 +39,9 @@ public class UserController {
 
     @PatchMapping("/{userId}")
     public ResponseEntity<Object> updateUser(@PathVariable @Positive Long userId,
-                                             @RequestBody @Valid UserDto userDto) {
-        log.info("Gateway: updateUser request id={}, dto={}", userId, userDto);
-        return userClient.updateUser(userId, userDto);
+                                             @RequestBody @Valid UserUpdateDto userUpdateDto) {
+        log.info("Gateway: updateUser request id={}, dto={}", userId, userUpdateDto);
+        return userClient.updateUser(userId, userUpdateDto);
     }
 
     @DeleteMapping("/{userId}")

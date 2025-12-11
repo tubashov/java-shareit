@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import ru.practicum.server.exception.EmailAlreadyExistsException;
 import ru.practicum.server.exception.NotFoundException;
+import ru.practicum.common.dto.user.UserUpdateDto;
 
 import java.util.List;
 import java.util.Optional;
@@ -60,12 +61,13 @@ class UserServiceImplTest {
 
     @Test
     void update_success() {
-        User updates = new User();
-        updates.setName("Jane Doe");
-        updates.setEmail("jane@example.com");
+        // Вместо User создаем UserUpdateDto
+        UserUpdateDto updates = UserUpdateDto.builder()
+                .name("Jane Doe")
+                .email("jane@example.com")
+                .build();
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(userRepository.existsByEmailIgnoreCase("jane@example.com")).thenReturn(false);
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         User result = userService.update(1L, updates);
@@ -77,15 +79,17 @@ class UserServiceImplTest {
 
     @Test
     void update_nonExistentUser_throws() {
+        UserUpdateDto updates = UserUpdateDto.builder().build();
         when(userRepository.findById(2L)).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> userService.update(2L, user));
+        assertThrows(NotFoundException.class, () -> userService.update(2L, updates));
     }
 
     @Test
     void update_emailExists_throws() {
-        User updates = new User();
-        updates.setEmail("existing@example.com");
+        UserUpdateDto updates = UserUpdateDto.builder()
+                .email("existing@example.com")
+                .build();
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(userRepository.existsByEmailIgnoreCase("existing@example.com")).thenReturn(true);

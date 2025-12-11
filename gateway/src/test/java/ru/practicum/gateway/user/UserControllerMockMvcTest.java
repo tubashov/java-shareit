@@ -63,7 +63,7 @@ class UserControllerMockMvcTest {
         mockMvc.perform(get("/users/0"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").exists())
-                .andExpect(jsonPath("$.error").value(containsString("positive")));
+                .andExpect(jsonPath("$.error").value(containsString("greater than 0")));
     }
 
     @Test
@@ -99,7 +99,7 @@ class UserControllerMockMvcTest {
                         .content(objectMapper.writeValueAsString(userDto)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").exists())
-                .andExpect(jsonPath("$.error").value(containsString("positive")));
+                .andExpect(jsonPath("$.error").value(containsString("greater than 0")));
     }
 
     @Test
@@ -116,6 +116,6 @@ class UserControllerMockMvcTest {
         mockMvc.perform(delete("/users/0"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").exists())
-                .andExpect(jsonPath("$.error").value(containsString("positive")));
+                .andExpect(jsonPath("$.error").value(containsString("greater than 0")));
     }
 }

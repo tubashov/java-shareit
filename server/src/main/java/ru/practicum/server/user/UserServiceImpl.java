@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.server.exception.EmailAlreadyExistsException;
 import ru.practicum.server.exception.NotFoundException;
+import ru.practicum.common.dto.user.UserUpdateDto;
 
 import java.util.List;
 
@@ -21,10 +22,6 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public User create(User user) {
-        if (user == null) {
-            throw new IllegalArgumentException("User cannot be null");
-        }
-
         if (userRepository.existsByEmailIgnoreCase(user.getEmail())) {
             throw new EmailAlreadyExistsException("User with that email already exists");
         }
@@ -36,24 +33,23 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public User update(Long id, User updates) {
-        User existing = userRepository.findById(id)
-                .orElseThrow(() -> NotFoundException.of("User", id));
+    public User update(Long userId, UserUpdateDto userUpdateDto) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> NotFoundException.of("User", userId));
 
-        if (updates.getEmail() != null && !updates.getEmail().equalsIgnoreCase(existing.getEmail())) {
-            if (userRepository.existsByEmailIgnoreCase(updates.getEmail())) {
+        if (userUpdateDto.getName() != null) {
+            user.setName(userUpdateDto.getName());
+        }
+
+        if (userUpdateDto.getEmail() != null) {
+            if (!user.getEmail().equals(userUpdateDto.getEmail()) &&
+                    userRepository.existsByEmailIgnoreCase(userUpdateDto.getEmail())) {
                 throw new EmailAlreadyExistsException("User with that email already exists");
             }
-            existing.setEmail(updates.getEmail());
+            user.setEmail(userUpdateDto.getEmail());
         }
 
-        if (updates.getName() != null && !updates.getName().isBlank()) {
-            existing.setName(updates.getName());
-        }
-
-        User saved = userRepository.save(existing);
-        log.info("Updated user {}: {}", id, saved);
-        return saved;
+        return userRepository.save(user);
     }
 
     @Override

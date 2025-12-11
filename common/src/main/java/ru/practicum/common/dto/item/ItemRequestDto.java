@@ -20,7 +20,6 @@ public class ItemRequestDto {
     @NotBlank(message = "Description cannot be blank")
     private String description;
 
-    @NotNull(message = "Creation date cannot be null")
     private LocalDateTime created;
 
     private List<ItemShortDto> items;

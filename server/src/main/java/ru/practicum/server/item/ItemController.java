@@ -41,7 +41,7 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDto> getUserItems(@RequestHeader(value = USER_HEADER) @Positive Long userId) {
+    public List<ItemDto> getUserItems(@RequestHeader(value = USER_HEADER) Long userId) {
         return itemService.getAllByOwner(userId);
     }
 
@@ -52,8 +52,8 @@ public class ItemController {
 
     @PostMapping("/{itemId}/comment")
     public CommentDto addComment(
-            @RequestHeader("X-Sharer-User-Id") @Positive Long userId,
-            @PathVariable @Positive Long itemId,
+            @RequestHeader("X-Sharer-User-Id") Long userId,
+            @PathVariable Long itemId,
             @RequestBody CommentDto dto
     ) {
         return itemService.addComment(userId, itemId, dto);

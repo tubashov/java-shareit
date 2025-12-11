@@ -47,11 +47,10 @@ public class ItemServiceImpl implements ItemService {
 
         Item item = ItemMapper.toItem(itemDto, owner);
 
-        Long requestId = itemDto.getRequestId();
-        if (requestId != null) {
-            ItemRequest req = itemRequestRepository.findById(requestId)
-                    .orElseThrow(() -> NotFoundException.of("ItemRequest", requestId));
-            item.setRequest(req);
+        if (itemDto.getRequestId() != null) {
+            ItemRequest request = itemRequestRepository.findById(itemDto.getRequestId())
+                    .orElseThrow(() -> new NotFoundException("Request not found"));
+            item.setRequest(request);
         }
 
         Item saved = itemRepository.save(item);
@@ -158,9 +157,14 @@ public class ItemServiceImpl implements ItemService {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Item not found"));
 
-        boolean hasBooking = bookingRepository.existsByBookerIdAndItemIdAndEndBefore(
-                userId, itemId, LocalDateTime.now()
-        );
+        boolean hasBooking = bookingRepository
+                .existsByBookerIdAndItemIdAndStatusAndEndBefore(
+                        userId,
+                        itemId,
+                        BookingStatus.APPROVED,
+                        LocalDateTime.now()
+                );
+
 
         if (!hasBooking) {
             throw new ValidationException("User has not completed booking for this item");

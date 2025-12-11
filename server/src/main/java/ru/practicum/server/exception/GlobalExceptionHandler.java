@@ -1,57 +1,44 @@
 package ru.practicum.server.exception;
 
-import jakarta.validation.ConstraintViolationException;
-import lombok.extern.slf4j.Slf4j;
+import jakarta.validation.ValidationException;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.nio.file.AccessDeniedException;
 import java.util.Map;
 
-@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Запрещённый доступ — 403
-    @ExceptionHandler(AccessDeniedException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public Map<String, String> handleAccessDenied(AccessDeniedException ex) {
-        log.warn("Access denied: {}", ex.getMessage());
-        return Map.of("error", ex.getMessage());
+    // 400 BAD REQUEST
+    @ExceptionHandler({
+            ValidationException.class,
+            IllegalArgumentException.class
+    })
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleBadRequest(RuntimeException e) {
+        return Map.of("error", e.getMessage());
     }
 
-    @ExceptionHandler(BookingAccessException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public Map<String, String> handleBookingAccess(BookingAccessException ex) {
-        log.warn("Access denied: {}", ex.getMessage());
-        return Map.of("error", ex.getMessage());
-    }
-
-    // Ресурс не найден — 404
+    // 404 NOT FOUND
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Map<String, String> handleNotFound(NotFoundException ex) {
-        log.warn("Not found: {}", ex.getMessage());
-        return Map.of("error", ex.getMessage());
+    public Map<String, String> handleNotFound(NotFoundException e) {
+        return Map.of("error", e.getMessage());
     }
 
-    // Конфликт email - 409
-    @ExceptionHandler(EmailAlreadyExistsException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public Map<String, String> handleEmailExists(EmailAlreadyExistsException ex) {
-        log.warn("Email conflict: {}", ex.getMessage());
-        return Map.of("error", ex.getMessage());
+    // 403 FORBIDDEN
+    @ExceptionHandler(BookingAccessException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public Map<String, String> handleForbidden(BookingAccessException e) {
+        return Map.of("error", e.getMessage());
     }
 
-    // Все остальные RuntimeException — 500
-    @ExceptionHandler(RuntimeException.class)
+    // 500 INTERNAL SERVER ERROR
+    @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public Map<String, String> handleRuntimeException(RuntimeException ex) {
-        log.error("Runtime exception", ex);
-        return Map.of("error", ex.getMessage());
+    public Map<String, String> handleGeneral(Exception e) {
+        return Map.of("error", e.getMessage());
     }
 }

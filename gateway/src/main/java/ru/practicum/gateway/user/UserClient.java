@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import ru.practicum.common.dto.user.UserUpdateDto;
 import ru.practicum.gateway.client.BaseClient;
 import ru.practicum.gateway.client.ClientRestFactory;
 import ru.practicum.common.dto.user.UserDto;
@@ -30,7 +31,7 @@ public class UserClient extends BaseClient {
         return get(""); // без userId
     }
 
-    public ResponseEntity<Object> updateUser(Long userId, UserDto dto) {
+    public ResponseEntity<Object> updateUser(Long userId, UserUpdateDto dto) {
         return patch("/" + userId, dto);
     }
 

@@ -1,9 +1,6 @@
 package ru.practicum.common.dto.booking;
 
-import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.FutureOrPresent;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.*;
 import lombok.Builder;
 import lombok.Data;
 
@@ -22,4 +19,9 @@ public class BookingRequestDto {
     @NotNull(message = "End date cannot be null")
     @Future
     private LocalDateTime end;
+
+    @AssertTrue(message = "Start must be before end")
+    public boolean isStartBeforeEnd() {
+        return start != null && end != null && start.isBefore(end);
+    }
 }

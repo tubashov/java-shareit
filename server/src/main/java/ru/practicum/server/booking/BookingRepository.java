@@ -13,25 +13,26 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     // Все бронирования пользователя
     List<Booking> findAllByBookerIdOrderByStartDesc(Long bookerId);
 
-    // Все бронирования для вещей владельца
+    // Все бронирования вещей владельца
     List<Booking> findAllByItemOwnerIdOrderByStartDesc(Long ownerId);
 
     // Бронирования вещи по статусу
     List<Booking> findAllByItemIdAndStatusOrderByStartDesc(Long itemId, BookingStatus status);
 
-    // Проверка перекрывающихся approved бронирований
+    // Проверка перекрывающихся Approved-бронирований
     List<Booking> findAllByItemIdAndStatusAndStartBeforeAndEndAfter(
             Long itemId, BookingStatus status, LocalDateTime end, LocalDateTime start);
 
-    // Последняя завершённая бронь (lastBooking)
-    Booking findFirstByItemIdAndStatusAndEndBeforeOrderByEndDesc(Long itemId, BookingStatus status, LocalDateTime time);
+    // Последняя завершённая бронь
+    Booking findFirstByItemIdAndStatusAndEndBeforeOrderByEndDesc(
+            Long itemId, BookingStatus status, LocalDateTime time);
 
-    // Ближайшая будущая бронь (nextBooking)
+    // Следующая будущая бронь
     Booking findFirstByItemIdAndStatusAndStartAfterOrderByStartAsc(
-            Long itemId,
-            BookingStatus status,
-            LocalDateTime time);
+            Long itemId, BookingStatus status, LocalDateTime time);
 
-    // Проверка, брал ли пользователь вещь
-    boolean existsByBookerIdAndItemIdAndEndBefore(Long userId, Long itemId, LocalDateTime time);
+    // Аналогичный метод со статусом (может использоваться сервисом)
+    boolean existsByBookerIdAndItemIdAndStatusAndEndBefore(
+            Long userId, Long itemId, BookingStatus status, LocalDateTime time
+    );
 }

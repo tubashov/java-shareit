@@ -175,7 +175,10 @@ class ItemServiceImplTest {
 
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         when(itemRepository.findById(item.getId())).thenReturn(Optional.of(item));
-        when(bookingRepository.existsByBookerIdAndItemIdAndEndBefore(anyLong(), anyLong(), any())).thenReturn(true);
+        when(bookingRepository.existsByBookerIdAndItemIdAndStatusAndEndBefore(
+                anyLong(), anyLong(), any(), any())
+        ).thenReturn(true);
+
         when(commentRepository.save(any(Comment.class))).thenAnswer(i -> {
             Comment c = i.getArgument(0);
             c.setId(100L);
@@ -196,7 +199,9 @@ class ItemServiceImplTest {
 
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         when(itemRepository.findById(item.getId())).thenReturn(Optional.of(item));
-        when(bookingRepository.existsByBookerIdAndItemIdAndEndBefore(anyLong(), anyLong(), any())).thenReturn(false);
+        when(bookingRepository.existsByBookerIdAndItemIdAndStatusAndEndBefore(
+                anyLong(), anyLong(), any(), any())
+        ).thenReturn(false);
 
         assertThrows(ValidationException.class,
                 () -> itemService.addComment(user.getId(), item.getId(), dto));

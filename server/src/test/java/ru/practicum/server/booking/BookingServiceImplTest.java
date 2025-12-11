@@ -48,10 +48,11 @@ class BookingServiceImplTest {
         item.setOwner(user);
         item.setAvailable(true);
 
-        requestDto = new BookingRequestDto();
-        requestDto.setItemId(item.getId());
-        requestDto.setStart(LocalDateTime.now().plusDays(1));
-        requestDto.setEnd(LocalDateTime.now().plusDays(2));
+        requestDto = BookingRequestDto.builder()
+                .itemId(item.getId())
+                .start(LocalDateTime.now().plusDays(1))
+                .end(LocalDateTime.now().plusDays(2))
+                .build();
     }
 
     @Test
@@ -95,7 +96,7 @@ class BookingServiceImplTest {
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         when(itemRepository.findById(item.getId())).thenReturn(Optional.of(item));
 
-        IllegalStateException ex = assertThrows(IllegalStateException.class,
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> bookingService.createBooking(user.getId(), requestDto));
         assertEquals("Item is not available for booking", ex.getMessage());
     }
@@ -105,7 +106,7 @@ class BookingServiceImplTest {
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         when(itemRepository.findById(item.getId())).thenReturn(Optional.of(item));
 
-        IllegalStateException ex = assertThrows(IllegalStateException.class,
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> bookingService.createBooking(user.getId(), requestDto));
         assertEquals("Owner cannot book their own item", ex.getMessage());
     }
@@ -142,5 +143,45 @@ class BookingServiceImplTest {
         when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
 
         assertThrows(NotFoundException.class, () -> bookingService.getBooking(1L, user.getId()));
+    }
+
+    @Test
+    void findLastBookingForItem_returnsBookingShortDto() {
+        Booking booking = new Booking();
+        booking.setId(1L);
+        booking.setItem(item);
+        booking.setBooker(user);
+        booking.setStart(LocalDateTime.now().minusDays(2));
+        booking.setEnd(LocalDateTime.now().minusDays(1));
+        booking.setStatus(BookingStatus.APPROVED);
+
+        when(bookingRepository.findFirstByItemIdAndStatusAndEndBeforeOrderByEndDesc(
+                eq(item.getId()), eq(BookingStatus.APPROVED), any(LocalDateTime.class)))
+                .thenReturn(booking);
+
+        Optional<BookingShortDto> result = bookingService.findLastBookingForItem(item.getId());
+
+        assertTrue(result.isPresent());
+        assertEquals(booking.getId(), result.get().getId());
+    }
+
+    @Test
+    void findNextBookingForItem_returnsBookingShortDto() {
+        Booking booking = new Booking();
+        booking.setId(2L);
+        booking.setItem(item);
+        booking.setBooker(user);
+        booking.setStart(LocalDateTime.now().plusDays(1));
+        booking.setEnd(LocalDateTime.now().plusDays(2));
+        booking.setStatus(BookingStatus.APPROVED);
+
+        when(bookingRepository.findFirstByItemIdAndStatusAndStartAfterOrderByStartAsc(
+                eq(item.getId()), eq(BookingStatus.APPROVED), any(LocalDateTime.class)))
+                .thenReturn(booking);
+
+        Optional<BookingShortDto> result = bookingService.findNextBookingForItem(item.getId());
+
+        assertTrue(result.isPresent());
+        assertEquals(booking.getId(), result.get().getId());
     }
 }

@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.common.dto.user.UserDto;
+import ru.practicum.common.dto.user.UserUpdateDto;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,15 +43,16 @@ public class UserController {
     }
 
     @PatchMapping(value = "/{userId}", produces = "application/json")
-    public UserDto updateUser(@PathVariable Long userId, @RequestBody UserDto userDto) {
-        var updatedUser = userService.update(userId, UserMapper.toUser(userDto));
+    public UserDto updateUser(@PathVariable Long userId,
+                              @RequestBody UserUpdateDto userUpdateDto) {
+        var updatedUser = userService.update(userId, userUpdateDto);
         var updatedUserDto = UserMapper.toUserDto(updatedUser);
         log.info("PATCH /users/{} - update user: {}", userId, updatedUserDto);
         return updatedUserDto;
     }
 
     @DeleteMapping("/{userId}")
-    public void deleteUser(@PathVariable @Positive Long userId) {
+    public void deleteUser(@PathVariable Long userId) {
         userService.delete(userId);
         log.info("DELETE /users/{} - user deleted", userId);
     }
